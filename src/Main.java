@@ -27,25 +27,37 @@ public class Main {
 
         while(balance>0){
             System.out.println("Your current balance: $"+ balance);
+
+
+            //Enter Bet Amount
             System.out.print("Place your bet amount: ");
             bet=scanner.nextInt();
             scanner.nextLine();
+            // Verify if bet > balance
             if (bet> balance){
                 System.out.println("Insufficient funds");
                 continue;
             }
+            //Verify if bet > 0
             else if(bet<=0){
                 System.out.println("Bet must be greater than 0");
                 continue;
             }
+            //Subtract bet from balance
+
             else{
                 balance=balance-bet;
 
             }
+            //Spin row
             System.out.println("Spinning.....");
             row=spinRow();
+            //Print row
             printRow(row);
+
+            //Get Payout
             payout=getPayout(row,bet);
+
             if (payout>0){
                 System.out.println("You Won $"+payout);
                 balance=balance+payout+bet;
@@ -53,6 +65,8 @@ public class Main {
             else {
                 System.out.println("Sorry you lost this round");
             }
+            //Ask to play again
+
             System.out.println("Do you want to play Again? (Y/N)");
             playAgain=scanner.nextLine().toUpperCase();
             if(!playAgain.equals("Y")){
@@ -62,16 +76,13 @@ public class Main {
 
 
         }
-        System.out.println("Game Over..Your final balance is $"+balance);
-        //Enter Bet Amount
-        // Verify if bet > balance
-        //Verify if bet > 0
-        //Subtract bet from balance
-        //Spin row
-        //Print row
-        //Get Payout
-        //Ask to play again
         //Display exit message
+
+        System.out.println("Game Over..Your final balance is $"+balance);
+
+
+
+
 
         scanner.close();
 
