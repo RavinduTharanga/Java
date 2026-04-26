@@ -1,3 +1,8 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -6,144 +11,129 @@ public class Main {
 
     public static void main(String[] args){
 
-        Scanner scanner = new Scanner(System.in);
+        //Java Hang Man
+        String filePath="words.txt";
+        ArrayList<String>words=new ArrayList<>();
 
 
-        //Java slot machine
-        //Declare variables
-        int balance=100;
-        int bet;
-        int payout;
-        String[] row;
-        String playAgain;
-        //Display welcome message
-        System.out.println("*************************");
-        System.out.println("  Welcome to Java Slots  ");
-        System.out.println("Symbols: 🍒 🍉 🍋 🔔 ⭐");
-        System.out.println("*************************");
-
-
-        //Play if balance>0
-
-        while(balance>0){
-            System.out.println("Your current balance: $"+ balance);
-
-
-            //Enter Bet Amount
-            System.out.print("Place your bet amount: ");
-            bet=scanner.nextInt();
-            scanner.nextLine();
-            // Verify if bet > balance
-            if (bet> balance){
-                System.out.println("Insufficient funds");
-                continue;
+        try(BufferedReader reader=new BufferedReader(new FileReader(filePath))){
+            String line;
+            while ((line=reader.readLine())!=null){
+                words.add(line);
             }
-            //Verify if bet > 0
-            else if(bet<=0){
-                System.out.println("Bet must be greater than 0");
-                continue;
-            }
-            //Subtract bet from balance
-
-            else{
-                balance=balance-bet;
-
-            }
-            //Spin row
-            System.out.println("Spinning.....");
-            row=spinRow();
-            //Print row
-            printRow(row);
-
-            //Get Payout
-            payout=getPayout(row,bet);
-
-            if (payout>0){
-                System.out.println("You Won $"+payout);
-                balance=balance+payout+bet;
-            }
-            else {
-                System.out.println("Sorry you lost this round");
-            }
-            //Ask to play again
-
-            System.out.println("Do you want to play Again? (Y/N)");
-            playAgain=scanner.nextLine().toUpperCase();
-            if(!playAgain.equals("Y")){
-                break;
-            }
-
-
 
         }
-        //Display exit message
+        catch (FileNotFoundException e){
+            System.out.println("Could not find the file");
 
-        System.out.println("Game Over..Your final balance is $"+balance);
+        }
+        catch (IOException e){
+            System.out.println("Something Went wrong");
+        }
 
-
-
-
-
-        scanner.close();
-
-    }
-
-    //Spinrow
-    static String[] spinRow(){
-        String[] symbols ={"🍒","🍉","🍋","🔔","⭐"};
-        String[] row = new String[3];
         Random random = new Random();
 
-        for(int i=0; i<3;i++){
+        String word =words.get(random.nextInt(words.size()));
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Character> wordState=new ArrayList<>();
 
-            row[i]=symbols[random.nextInt(symbols.length)];
+        int wrongGuesses=0;
 
+        for(int i=0;i< word.length();i++){
+            wordState.add('_');
         }
-        return row;
+        System.out.println(wordState);
+        System.out.println("************************");
+        System.out.println("Welcome to Java Hang Man");
+        System.out.println("************************");
+
+        while (wrongGuesses<6) {
+
+            System.out.println(getHangmanArt(wrongGuesses));
+
+            System.out.println("Word: ");
+
+            for (char c : wordState) {
+                System.out.print(c + " ");
+            }
+            System.out.println();
+            System.out.print("Guess a Letter:");
+            char guess = scanner.next().toLowerCase().charAt(0);
+//            System.out.println(guess);
+            if (word.indexOf(guess) >= 0) {
+                System.out.println("Correct Guess!");
+                for (int i = 0; i < word.length(); i++) {
+                    if (word.charAt(i) == guess) {
+                        wordState.set(i, guess);
+                    }
+                }
+                if(!wordState.contains('_')){
+                    System.out.println(getHangmanArt(wrongGuesses));
+                    System.out.println("You Win!!!");
+                    System.out.println("The word was: "+word);
+                    break;
+                }
+            }
+            else {
+                wrongGuesses++;
+                System.out.println("Wrong Guess!");
+            }
+        }
+        if (wrongGuesses>=6){
+            System.out.println(getHangmanArt(wrongGuesses));
+            System.out.println("Game Over");
+            System.out.println("The word was: "+ word);
+        }
+        scanner.close();
     }
-    static void printRow(String[] row){
-        System.out.println("*************************");
-        System.out.println(" "+ String.join(" | ",row));
-        System.out.println("*************************");
 
 
-    }
-    static int getPayout(String[]row,int bet){
-        if(row[0].equals(row[1])&& row[1].equals(row[2])){
-            return switch (row[0]){
-                case "🍒"->bet*3;
-                case "🍉"->bet*4;
-                case "🍋"->bet*5;
-                case "🔔"->bet*10;
-                case "⭐"->bet*20;
-                default -> 0;
+    static String getHangmanArt(int wrongGuesses){
 
-            };
-
-
-        }
-        else if(row[0].equals(row[1])) {
-            return switch (row[0]) {
-                case "🍒" -> bet * 2;
-                case "🍉" -> bet * 3;
-                case "🍋" -> bet * 4;
-                case "🔔" -> bet * 5;
-                case "⭐" -> bet * 10;
-                default -> 0;
-
-            };
-        }
-        else if(row[1].equals(row[2])) {
-            return switch (row[1]) {
-                case "🍒" -> bet * 2;
-                case "🍉" -> bet * 3;
-                case "🍋" -> bet * 4;
-                case "🔔" -> bet * 5;
-                case "⭐" -> bet * 10;
-                default -> 0;
-
-            };
-        }
-        return 0;
+        return  switch (wrongGuesses){
+            case 0-> """
+                     
+                     
+                     
+                     
+                     """;
+            case 1-> """
+                      |
+                    
+                    
+                    
+                     """;
+            case 2-> """
+                      |
+                      0
+                    
+                    
+                     """;
+            case 3-> """
+                      |
+                      0
+                      |
+                     
+                     """;
+            case 4-> """
+                      |
+                      0
+                     /|\\
+                     
+                     """;
+            case 5-> """
+                      |
+                      0
+                     /|\\
+                     / 
+                     """;
+            case 6-> """
+                      |
+                      0
+                     /|\\
+                     / \\
+                     """;
+            default -> "";
+        };
     }
 }
